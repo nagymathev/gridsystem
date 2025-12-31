@@ -97,8 +97,7 @@ func place_item_at(idx: int) -> void:
 		return
 	
 	for cell in dragged_item.item_cells:
-		if grid[translate_relative_cell_to_index(idx, cell)] > 0:
-			print(grid[translate_relative_cell_to_index(idx, cell)])
+		if translate_relative_cell_to_index(idx, cell) > grid.size() or grid[translate_relative_cell_to_index(idx, cell)] > 0:
 			return # There's something where we're trying to place the item
 	
 	for cell in dragged_item.item_cells:
