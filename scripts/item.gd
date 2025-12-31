@@ -8,9 +8,9 @@ class_name Item
 @export var item_name: String
 @export var item_image: Texture2D
 @export var item_color: Color
-@export var item_cells: Array[Vector2i]
+@export var item_cells: Array[Vector2]
 
-func _init(id: int = 0, name: String = "default", cells: Array[Vector2i] = [Vector2(0,0)]) -> void:
+func _init(id: int = 0, name: String = "default", cells: Array[Vector2] = [Vector2(0,0)]) -> void:
 	self.item_id = id
 	self.item_name = name
 	self.item_cells = cells
