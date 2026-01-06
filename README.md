@@ -1,11 +1,14 @@
 # Some sort of Inventory System perhaps with a sprinkle of game.
 
 TODO:
+- While dragging an item show a green or red where the item would be placed, indicating the validity of placement.
+- Should not be able to interact with the inventory if mouse is outside.
 - Figure out some sort of overlay method instead of changing the colors of the items.
     - This could be made using a separate mouse class that handles interactions with the inventories.
 - Introduce multiple inventories to pass items in between.
 
 Changelog
+- Translated the code to C# (2026-01-06)
 - Don't remove item until it is placed. With this can put item back when trying to place it at an illegal location. (2026-01-01)
 - Have items be able to define their own colour. (2025-12-31)
 - Make item visible while moving it. (2025-12-31)

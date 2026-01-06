@@ -1,5 +1,5 @@
 extends Node
-class_name Item
+class_name ItemOld
 
 ## Unique ID created upon adding the item to the inventory.
 ## Only used for identifying which cells belong to which item as a whole.

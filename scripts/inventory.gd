@@ -1,5 +1,5 @@
 extends Control
-class_name Inventory
+class_name InventoryOld
 
 @export var background_color: Color = Color("#292831")
 @export var item_color: Color = Color("#fbbbad")
@@ -80,22 +80,9 @@ func _input(event: InputEvent) -> void:
 			drag_end.emit()
 
 func pick_item_at(idx: int) -> void:
-	var remove_at: int = -1
-	for i in items.size():
-		for cell in items[i].item_cells:
-			if (vector_to_index_relative(items[i].index, cell) == idx):
-				remove_at = i
-				break
-		
-	if remove_at < 0:
+	dragged_item = get_item(idx)
+	if !dragged_item:
 		return
-	
-	# Not removing it anymore.
-	# dragged_item = items.pop_at(remove_at)
-	dragged_item = items[remove_at]
-
-	# for cell in dragged_item.item_cells:
-	# 	grid[dragged_item.index + vector_to_index(cell)] = 0
 	
 	for cell in dragged_item.item_cells:
 		grid_rects[vector_to_index_relative(dragged_item.index, cell)].self_modulate = dragged_item.item_color.darkened(0.2)
@@ -212,3 +199,21 @@ func append_item(item: Item) -> void:
 		grid[vector_to_index_relative(item.index, cell)] = item.item_id
 		update_cells()
 	items.append(item)
+
+################################
+# Perhaps some proper API here #
+################################
+
+## Returns [Item] at index.[br]
+## If there's no item at index returns [code]null[/code].
+func get_item(idx: int) -> Item:
+	for _item in items:
+		for cell in _item.item_cells:
+			if (vector_to_index_relative(_item.index, cell) == idx):
+				return _item
+	return null
+
+## Adds _item at index.[br]
+## Returns true or false depending on operation success.
+func add_item(idx: int, _item: Item) -> bool:
+	return false
