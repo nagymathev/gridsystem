@@ -1,6 +1,8 @@
 # Some sort of Inventory System perhaps with a sprinkle of game.
 
 TODO:
+- Make the Inventory class have API-like functions for easy interaction.
+- Multi cell items can block themselves from placement. They should ignore themselves when checking placement.
 - While dragging an item show a green or red where the item would be placed, indicating the validity of placement.
 - Should not be able to interact with the inventory if mouse is outside.
 - Figure out some sort of overlay method instead of changing the colors of the items.
