@@ -45,7 +45,7 @@ public partial class Inventory : Control
 
 		for (int i = 0; i < totalGridSize; i++)
 		{
-			var rect = CreateRect(IndexToVector(i), _backgroundColor);
+			var rect = CreateRect(GridIndexToVector(i) * (_cellSize + _cellGapSize), _backgroundColor);
 			this.AddChild(rect);
 			_gridRects[i] = rect;
 		}
@@ -87,7 +87,7 @@ public partial class Inventory : Control
 		{
 			var mousePos = mm.Position;
 			var gridMousePos = ScreenSpacePixelToGridPosition(mousePos);
-			var gridIndex = VectorToIndex(gridMousePos);
+			var gridIndex = GridVectorToIndex(gridMousePos);
 
 			if (gridMousePos.X >= 0 && gridMousePos.X < _gridSize.X &&
 				gridMousePos.Y >= 0 && gridMousePos.Y < _gridSize.Y)
@@ -102,6 +102,10 @@ public partial class Inventory : Control
 					_previousColor = _gridRects[gridIndex].Color;
 				}
 				_gridRects[gridIndex].Color = new Color("#f32f");
+			}
+			else
+			{
+				_gridRects[gridIndex].Color = _backgroundColor;
 			}
 		}
 		
@@ -130,9 +134,12 @@ public partial class Inventory : Control
 
 		foreach (var cell in _draggedItem.itemCells)
 		{
-			_gridRects[VectorToIndexRelative(_draggedItem.index, cell)].SelfModulate = _draggedItem.itemColor.Darkened(0.2f);
+			_gridRects[GridVectorToIndexRelative(_draggedItem.index, cell)].SelfModulate = _draggedItem.itemColor.Darkened(0.2f);
 		}
 
+		var isRemoved = RemoveItem(_draggedItem);
+		GD.Print(isRemoved);
+		
 		_previousColor = _draggedItem.itemColor;
 		UpdateCells();
 
@@ -152,36 +159,28 @@ public partial class Inventory : Control
 			return;
 		}
 
-		foreach (var cell in _draggedItem.itemCells)
+		var newItem = new Item(_draggedItem);
+		newItem.index = idx;
+		if (IsItemOutOfBounds(newItem) || !IsItemCellsEmpty(newItem))
 		{
-			int cellPos = VectorToIndexRelative(idx, cell);
-			if (cellPos > _grid.Count || _grid[cellPos] > 0)
+			AddItem(_draggedItem.index, _draggedItem);
+			OriginalColor(_draggedItem);
+
+			foreach (var rect in _draggedItemRender)
 			{
-				// Something is in the way or out of bounds
-				OriginalColor(_draggedItem);
-
-				foreach (var rect in _draggedItemRender)
-				{
-					RemoveChild(rect);
-					rect.QueueFree();
-				}
-
-				_draggedItemRender.Clear();
-				_draggedItem = null;
-
-				return;
+				RemoveChild(rect);
+				rect.QueueFree();
 			}
+
+			_draggedItemRender.Clear();
+			_draggedItem = null;
+
+			return;
 		}
 
 		OriginalColor(_draggedItem);
-
-		foreach (var cell in _draggedItem.itemCells)
-		{
-			_grid[VectorToIndexRelative(_draggedItem.index, cell)] = 0;
-			_grid[VectorToIndexRelative(idx, cell)] = _draggedItem.itemId;
-		}
-
-		_draggedItem.index = idx;
+		
+		AddItem(idx, _draggedItem);
 
 		_previousColor = _draggedItem.itemColor;
 		
@@ -214,13 +213,13 @@ public partial class Inventory : Control
 	{
 		foreach (var cell in item.itemCells)
 		{
-			_gridRects[VectorToIndexRelative(item.index, cell)].SelfModulate = new Color(1, 1, 1, 1);
+			_gridRects[GridVectorToIndexRelative(item.index, cell)].SelfModulate = new Color(1, 1, 1, 1);
 		}
 	}
 
 	private int MousePosIndex()
 	{
-		return VectorToIndex(ScreenSpacePixelToGridPosition(GetLocalMousePosition()));
+		return GridVectorToIndex(ScreenSpacePixelToGridPosition(GetLocalMousePosition()));
 	}
 
 	private Vector2 ScreenSpacePixelToGridPosition(Vector2 pos)
@@ -232,20 +231,67 @@ public partial class Inventory : Control
 		return gridPos;
 	}
 
-	private int VectorToIndex(Vector2 pos)
+	private int GridVectorToIndex(Vector2 pos)
 	{
 		int idx = (int)(pos.X + (_gridSize.X * pos.Y));
 		return idx;
 	}
 
-	private int VectorToIndexRelative(int idx, Vector2 offset)
+	private int GridVectorToIndexRelative(int idx, Vector2 offset)
 	{
-		return idx + VectorToIndex(offset);
+		return idx + GridVectorToIndex(offset);
 	}
 
-	private Vector2 IndexToVector(int idx)
+	private Vector2 GridIndexToVector(int idx)
 	{
-		return new Vector2(idx % _gridSize.X, Mathf.Floor(idx / _gridSize.X)) * (_cellSize + _cellGapSize);
+		return new Vector2(idx % _gridSize.X, Mathf.Floor(idx / _gridSize.X));
+	}
+
+	private Vector2 GridLocalToGlobal(int idx, Vector2 cell)
+	{
+		var pos = GridIndexToVector(idx);
+		return pos + cell;
+	}
+	
+	private bool IsCellEmpty(int idx)
+	{
+		// Any value greater than 0 indicates there's something.
+		return _grid[idx] <= 0;
+	}
+
+	// Are there enough free cells for an item?
+	private bool IsItemCellsEmpty(Item item)
+	{
+		foreach (var cell in item.itemCells)
+		{
+			if (!IsCellEmpty(GridVectorToIndexRelative(item.index, cell)))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private bool IsOutOfBounds(Vector2 cell)
+	{
+		// This is simple rectangular checking, will not work if I later have crazy shapes.
+		if ((int)cell.X < 0 || (int)cell.X > _gridSize.X - 1 || (int)cell.Y < 0 || (int)cell.Y > _gridSize.Y - 1)
+		{
+			return true;
+		}
+		return false;
+	}
+
+	private bool IsItemOutOfBounds(Item item)
+	{
+		foreach (var cell in item.itemCells)
+		{
+			if (IsOutOfBounds(GridLocalToGlobal(item.index, cell)))
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void UpdateCells()
@@ -285,7 +331,7 @@ public partial class Inventory : Control
 		{
 			foreach (Vector2 cell in item.itemCells)
 			{
-				if (VectorToIndexRelative(item.index, cell) == idx)
+				if (GridVectorToIndexRelative(item.index, cell) == idx)
 				{
 					return item;
 				}
@@ -296,14 +342,38 @@ public partial class Inventory : Control
 
 	public bool AddItem(int idx, Item item)
 	{
-		item.index = idx;
 		foreach (var cell in item.itemCells)
 		{
-			_grid[VectorToIndexRelative(item.index, cell)] = item.itemId;
+			var i = GridVectorToIndexRelative(idx, cell);
+			if (i < _grid.Count)
+			{
+				_grid[i] = item.itemId;
+			}
+			else
+			{
+				return false;
+			}
 		}
-		UpdateCells();
+		item.index = idx;
 		_items.Add(item);
+		UpdateCells();
 		
-		return false;
+		return true;
+	}
+
+	public bool RemoveItem(Item item)
+	{
+		for (int i = 0; i < _grid.Count; i++)
+		{
+			if (_grid[i] == item.itemId)
+			{
+				_grid[i] = 0;
+				_gridRects[i].Color = _backgroundColor;
+			}
+		}
+
+		var success = _items.Remove(item);
+		UpdateCells();
+		return success;
 	}
 }

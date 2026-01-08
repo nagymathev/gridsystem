@@ -12,6 +12,15 @@ public partial class Item : Node
 	[Export] public Color itemColor;
 	[Export] public Array<Vector2> itemCells;
 
+	public Item(Item item)
+	{
+		itemId = item.itemId;
+		index = item.index;
+		itemName = item.itemName;
+		itemImage = item.itemImage;
+		itemColor = item.itemColor;
+		itemCells = item.itemCells.Duplicate(true);
+	}
 	public Item(int id, String name, Array<Vector2> cells)
 	{
 		this.itemId = id;
