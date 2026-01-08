@@ -2,3 +2,5 @@
 .godot/
 /android/
 .vscode
+.idea
+inventory.sln.DotSettings.user
