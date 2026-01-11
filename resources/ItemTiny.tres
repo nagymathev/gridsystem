@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3 uid="uid://vf3t82jnmj0e"]
+
+[ext_resource type="Script" uid="uid://dvviuy2b6oeyh" path="res://scripts/ItemResource.cs" id="1_6pj0o"]
+
+[resource]
+script = ExtResource("1_6pj0o")
+Name = "Cub"
+Cells = Array[Vector2]([Vector2(0, 0)])
+Color = Color(0.40180004, 0.98, 0.7005367, 1)
+metadata/_custom_type_script = "uid://dvviuy2b6oeyh"

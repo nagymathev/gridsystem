@@ -6,12 +6,15 @@ TODO:
 - While dragging items, the whole item should be centered on the cursor not just the index one.
 - While dragging an item show a green or red where the item would be placed, indicating the validity of placement.
 - Might need to rewrite how items store their location, or have them not at all store their location.
+  - Use Resources.
 - Should not be able to interact with the inventory if mouse is outside. Eg.: While dragging mouse goes out of inventory.
 - Figure out some sort of overlay method instead of changing the colors of the items.
     - This could be made using a separate mouse class that handles interactions with the inventories.
 - Introduce multiple inventories to pass items in between.
+- Make Inventory a tool class to preview in editor.
 
 Changelog
+- Experiments with using resources for static data. (2026-01-11)
 - Multi cell items can block themselves from placement. They should ignore themselves when checking placement. (2026-01-08)
 - Translated the code to C# (2026-01-06)
 - Don't remove item until it is placed. With this can put item back when trying to place it at an illegal location. (2026-01-01)

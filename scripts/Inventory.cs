@@ -1,13 +1,14 @@
 using Godot;
 using Godot.Collections;
 
+namespace InventorySystem;
+
 [GlobalClass]
 public partial class Inventory : Control
 {
 	[Export] private Color _backgroundColor = new Color("#292831");
-	[Export] private Color _itemColor = new Color("#fbbbad");
 	
-	[Export] private Array<Item> _items = new Array<Item>();
+	[Export] private Array<InventoryItem> _items = new Array<InventoryItem>();
 	[Export] private Array<int> _grid = new Array<int>();
 	[Export] private Vector2I _gridSize = new Vector2I(10, 10);
 	[Export] private int _cellSize = 30;
@@ -17,9 +18,11 @@ public partial class Inventory : Control
 	private ColorRect _previousCell = new ColorRect();
 	private Color _previousColor = new Color();
 
-	private Item _draggedItem = null;
+	private InventoryItem _draggedInventoryItem = null;
 	private Array<ColorRect> _draggedItemRender = new Array<ColorRect>();
 	private bool _isDragging = false;
+
+	[Export] public Array<InventoryItem> _startingItems = new Array<InventoryItem>();
 
 	[Signal] public delegate void OnDragStartEventHandler();
 	[Signal] public delegate void OnDragEndEventHandler();
@@ -27,6 +30,19 @@ public partial class Inventory : Control
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
+		if (Engine.IsEditorHint())
+		{
+			if (_items.Count > 0)
+			{
+				_items.Clear();
+			}
+
+			if (_grid.Count > 0)
+			{
+				_grid.Clear();
+			}
+		}
+		
 		OnDragStart += () => {
 			_isDragging = true;
 			PickItemAt(MousePosIndex());
@@ -50,22 +66,10 @@ public partial class Inventory : Control
 			_gridRects[i] = rect;
 		}
 
-		var item1 = new Item(1, "The Item", [new Vector2(0,0)]);
-		item1.itemColor = new Color("#4a7a96");
-		AddItem(2, item1);
-
-		var item2 = new Item(2, "Other Item", [new Vector2(0,0), new Vector2(0,1), new Vector2(0,2)]);
-		item2.itemColor = new Color("#ee8695");
-		AddItem(5, item2);
-
-		var item3 = new Item(3, "The Weird One", [
-			new Vector2(0,0),
-			new Vector2(0,1),
-			new Vector2(1,1),
-			new Vector2(2,1)
-		]);
-		item3.itemColor = new Color("#ff7777");
-		AddItem(6, item3);
+		for (int i = 0; i < _startingItems.Count; i++)
+		{
+			AddItem(_startingItems[i].index, _startingItems[i]);
+		}
 
 		UpdateCells();
 	}
@@ -73,43 +77,14 @@ public partial class Inventory : Control
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
-		if (_isDragging && _draggedItem != null)
+		if (_isDragging && _draggedInventoryItem != null)
 		{
-			RenderItem(_draggedItem);
+			RenderItem(_draggedInventoryItem);
 		}
 	}
 
     public override void _Input(InputEvent @event)
     {
-		// Just mouse visibility
-		var mm = @event as InputEventMouseMotion;
-		if (mm != null)
-		{
-			var mousePos = mm.Position;
-			var gridMousePos = ScreenSpacePixelToGridPosition(mousePos);
-			var gridIndex = GridVectorToIndex(gridMousePos);
-
-			if (gridMousePos.X >= 0 && gridMousePos.X < _gridSize.X &&
-				gridMousePos.Y >= 0 && gridMousePos.Y < _gridSize.Y)
-			{
-				if (_previousCell != _gridRects[gridIndex])
-				{
-					if (_previousCell != null)
-					{
-						_previousCell.Color = _previousColor;
-					}
-					_previousCell = _gridRects[gridIndex];
-					_previousColor = _gridRects[gridIndex].Color;
-				}
-				_gridRects[gridIndex].Color = new Color("#f32f");
-			}
-			else
-			{
-				_gridRects[gridIndex].Color = _backgroundColor;
-			}
-		}
-		
-
         var mb = @event as InputEventMouseButton;
 		if (mb != null)
 		{
@@ -126,27 +101,21 @@ public partial class Inventory : Control
 
 	private void PickItemAt(int idx)
 	{
-		_draggedItem = GetItem(idx);
-		if (_draggedItem == null)
+		_draggedInventoryItem = GetItem(idx);
+		if (_draggedInventoryItem == null)
 		{
 			return;
 		}
 
-		foreach (var cell in _draggedItem.itemCells)
-		{
-			_gridRects[GridVectorToIndexRelative(_draggedItem.index, cell)].SelfModulate = _draggedItem.itemColor.Darkened(0.2f);
-		}
-
-		var isRemoved = RemoveItem(_draggedItem);
-		GD.Print(isRemoved);
+		RemoveItem(_draggedInventoryItem);
 		
-		_previousColor = _draggedItem.itemColor;
+		_previousColor = _draggedInventoryItem.itemData.Color;
 		UpdateCells();
 
 		var mousePos = GetLocalMousePosition();
-		foreach (var cell in _draggedItem.itemCells)
+		foreach (var cell in _draggedInventoryItem.itemData.Cells)
 		{
-			var rect = CreateRect(mousePos + (cell * (_cellSize / 2)), _draggedItem.itemColor);
+			var rect = CreateRect(mousePos + (cell * (_cellSize / 2)), _draggedInventoryItem.itemData.Color);
 			_draggedItemRender.Add(rect);
 			AddChild(rect);
 		}
@@ -154,17 +123,16 @@ public partial class Inventory : Control
 
 	private void PlaceItemAt(int idx)
 	{
-		if (_draggedItem == null)
+		if (_draggedInventoryItem == null)
 		{
 			return;
 		}
 
-		var newItem = new Item(_draggedItem);
+		var newItem = _draggedInventoryItem.Clone();
 		newItem.index = idx;
 		if (IsItemOutOfBounds(newItem) || !IsItemCellsEmpty(newItem))
 		{
-			AddItem(_draggedItem.index, _draggedItem);
-			OriginalColor(_draggedItem);
+			AddItem(_draggedInventoryItem.index, _draggedInventoryItem);
 
 			foreach (var rect in _draggedItemRender)
 			{
@@ -173,18 +141,17 @@ public partial class Inventory : Control
 			}
 
 			_draggedItemRender.Clear();
-			_draggedItem = null;
+			_draggedInventoryItem = null;
 
 			return;
 		}
+		newItem.QueueFree();
 
-		OriginalColor(_draggedItem);
-		
-		AddItem(idx, _draggedItem);
+		AddItem(idx, _draggedInventoryItem);
 
-		_previousColor = _draggedItem.itemColor;
+		_previousColor = _draggedInventoryItem.itemData.Color;
 		
-		_draggedItem = null;
+		_draggedInventoryItem = null;
 		UpdateCells();
 
 		foreach (var rect in _draggedItemRender)
@@ -195,25 +162,17 @@ public partial class Inventory : Control
 		_draggedItemRender.Clear();
 	}
 
-	private void RenderItem(Item item)
+	private void RenderItem(InventoryItem inventoryItem)
 	{
 		var mousePos = GetLocalMousePosition();
-		for (int i = 0; i < item.itemCells.Count; i++)
+		for (int i = 0; i < inventoryItem.itemData.Cells.Count; i++)
 		{
 			var rect = _draggedItemRender[i];
 			rect.Position = new Vector2(
-				(mousePos.X - _cellSize / 2) + item.itemCells[i].X * (_cellSize + _cellGapSize),
-				(mousePos.Y - _cellSize / 2) + item.itemCells[i].Y * (_cellSize + _cellGapSize)
+				(mousePos.X - _cellSize / 2) + inventoryItem.itemData.Cells[i].X * (_cellSize + _cellGapSize),
+				(mousePos.Y - _cellSize / 2) + inventoryItem.itemData.Cells[i].Y * (_cellSize + _cellGapSize)
 			);
-			rect.Color = item.itemColor;
-		}
-	}
-
-	private void OriginalColor(Item item)
-	{
-		foreach (var cell in item.itemCells)
-		{
-			_gridRects[GridVectorToIndexRelative(item.index, cell)].SelfModulate = new Color(1, 1, 1, 1);
+			rect.Color = inventoryItem.itemData.Color;
 		}
 	}
 
@@ -225,8 +184,8 @@ public partial class Inventory : Control
 	private Vector2 ScreenSpacePixelToGridPosition(Vector2 pos)
 	{
 		var gridPos = new Vector2(
-			Mathf.Clamp(Mathf.Floor(pos.X / (_cellSize + _cellGapSize)), 0.0f, _gridSize.X - 1.0f),
-			Mathf.Clamp(Mathf.Floor(pos.Y / (_cellSize + _cellGapSize)), 0.0f, _gridSize.Y - 1.0f)
+			Mathf.Floor(pos.X / (_cellSize + _cellGapSize)),
+			Mathf.Floor(pos.Y / (_cellSize + _cellGapSize))
 		);
 		return gridPos;
 	}
@@ -260,11 +219,11 @@ public partial class Inventory : Control
 	}
 
 	// Are there enough free cells for an item?
-	private bool IsItemCellsEmpty(Item item)
+	private bool IsItemCellsEmpty(InventoryItem inventoryItem)
 	{
-		foreach (var cell in item.itemCells)
+		foreach (var cell in inventoryItem.itemData.Cells)
 		{
-			if (!IsCellEmpty(GridVectorToIndexRelative(item.index, cell)))
+			if (!IsCellEmpty(GridVectorToIndexRelative(inventoryItem.index, cell)))
 			{
 				return false;
 			}
@@ -282,11 +241,11 @@ public partial class Inventory : Control
 		return false;
 	}
 
-	private bool IsItemOutOfBounds(Item item)
+	private bool IsItemOutOfBounds(InventoryItem inventoryItem)
 	{
-		foreach (var cell in item.itemCells)
+		foreach (var cell in inventoryItem.itemData.Cells)
 		{
-			if (IsOutOfBounds(GridLocalToGlobal(item.index, cell)))
+			if (IsOutOfBounds(GridLocalToGlobal(inventoryItem.index, cell)))
 			{
 				return true;
 			}
@@ -304,7 +263,7 @@ public partial class Inventory : Control
 				{
 					if (item.itemId == _grid[i])
 					{
-						_gridRects[i].Color = item.itemColor;
+						_gridRects[i].Color = item.itemData.Color;
 					}
 				}
 			}
@@ -325,11 +284,11 @@ public partial class Inventory : Control
 		return rect;
 	}
 
-	public Item GetItem(int idx)
+	public InventoryItem GetItem(int idx)
 	{
-		foreach (Item item in _items)
+		foreach (InventoryItem item in _items)
 		{
-			foreach (Vector2 cell in item.itemCells)
+			foreach (Vector2 cell in item.itemData.Cells)
 			{
 				if (GridVectorToIndexRelative(item.index, cell) == idx)
 				{
@@ -340,39 +299,40 @@ public partial class Inventory : Control
 		return null;
 	}
 
-	public bool AddItem(int idx, Item item)
+	public bool AddItem(int idx, InventoryItem inventoryItem)
 	{
-		foreach (var cell in item.itemCells)
+		foreach (var cell in inventoryItem.itemData.Cells)
 		{
+			// TODO: This possibly sets items on the grid when it really shouldn't leaving residue when it fails.
 			var i = GridVectorToIndexRelative(idx, cell);
 			if (i < _grid.Count)
 			{
-				_grid[i] = item.itemId;
+				_grid[i] = inventoryItem.itemId;
 			}
 			else
 			{
 				return false;
 			}
 		}
-		item.index = idx;
-		_items.Add(item);
+		inventoryItem.index = idx;
+		_items.Add(inventoryItem);
 		UpdateCells();
 		
 		return true;
 	}
 
-	public bool RemoveItem(Item item)
+	public bool RemoveItem(InventoryItem inventoryItem)
 	{
 		for (int i = 0; i < _grid.Count; i++)
 		{
-			if (_grid[i] == item.itemId)
+			if (_grid[i] == inventoryItem.itemId)
 			{
 				_grid[i] = 0;
 				_gridRects[i].Color = _backgroundColor;
 			}
 		}
 
-		var success = _items.Remove(item);
+		var success = _items.Remove(inventoryItem);
 		UpdateCells();
 		return success;
 	}

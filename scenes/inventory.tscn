@@ -1,12 +1,37 @@
-[gd_scene load_steps=2 format=3 uid="uid://de13a8pse1wke"]
+[gd_scene load_steps=5 format=3 uid="uid://de13a8pse1wke"]
 
 [ext_resource type="Script" uid="uid://bayc0tbls6gt4" path="res://scripts/Inventory.cs" id="1_qw0r6"]
+[ext_resource type="Script" uid="uid://dcyvo6v8e16pa" path="res://scripts/InventoryItem.cs" id="2_ty45s"]
+[ext_resource type="Resource" uid="uid://dea4rl2r3g7ql" path="res://resources/ItemSquare.tres" id="3_53g1v"]
+[ext_resource type="Resource" uid="uid://vf3t82jnmj0e" path="res://resources/ItemTiny.tres" id="4_53g1v"]
 
-[node name="Inventory" type="Control"]
+[node name="Inventory" type="Control" node_paths=PackedStringArray("_startingItems")]
 layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -160.0
+offset_top = -160.0
+offset_right = 160.0
+offset_bottom = 160.0
 grow_horizontal = 2
 grow_vertical = 2
+pivot_offset = Vector2(160, 160)
 script = ExtResource("1_qw0r6")
+_startingItems = [NodePath("InventoryItem"), NodePath("InventoryItem2")]
+
+[node name="InventoryItem" type="Node" parent="."]
+script = ExtResource("2_ty45s")
+itemId = 14
+index = 3
+itemData = ExtResource("3_53g1v")
+metadata/_custom_type_script = "uid://dcyvo6v8e16pa"
+
+[node name="InventoryItem2" type="Node" parent="."]
+script = ExtResource("2_ty45s")
+itemId = 4
+index = 5
+itemData = ExtResource("4_53g1v")
+metadata/_custom_type_script = "uid://dcyvo6v8e16pa"

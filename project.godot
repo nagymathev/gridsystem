@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="inventory"
-run/main_scene="uid://de13a8pse1wke"
+run/main_scene="uid://bftbkqgxvubyf"
 config/features=PackedStringArray("4.5", "C#", "Mobile")
 config/icon="res://icon.svg"
 

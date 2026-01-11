@@ -1,0 +1,20 @@
+[gd_scene load_steps=2 format=3 uid="uid://bftbkqgxvubyf"]
+
+[ext_resource type="PackedScene" uid="uid://de13a8pse1wke" path="res://scenes/inventory.tscn" id="1_nt7q6"]
+
+[node name="UI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -13.0
+offset_top = 26.0
+offset_right = -13.0
+offset_bottom = 26.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Inventory" parent="." node_paths=PackedStringArray("_items") instance=ExtResource("1_nt7q6")]
+layout_mode = 1
+_items = []
+_grid = []
