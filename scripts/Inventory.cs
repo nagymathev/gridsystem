@@ -7,19 +7,21 @@ namespace InventorySystem;
 public partial class Inventory : Control
 {
 	[Export] private Color _backgroundColor = new Color("#292831");
+	[Export] private Texture2D _backgroundTexture;
 	
+	// Data
 	[Export] private Array<InventoryItem> _items = new Array<InventoryItem>();
 	[Export] private Array<int> _grid = new Array<int>();
 	[Export] private Vector2I _gridSize = new Vector2I(10, 10);
 	[Export] private int _cellSize = 30;
 	[Export] private int _cellGapSize = 2;
 
-	private Array<ColorRect> _gridRects = new Array<ColorRect>();
-	private ColorRect _previousCell = new ColorRect();
-	private Color _previousColor = new Color();
+	// Background Rendering
+	private Array<TextureRect> _gridRects = new Array<TextureRect>();
 
-	private InventoryItem _draggedInventoryItem = null;
-	private Array<ColorRect> _draggedItemRender = new Array<ColorRect>();
+	// Dragging (Mouse) Data
+	private InventoryItem _draggedInventoryItem;
+	private Array<TextureRect> _draggedItemRender = new Array<TextureRect>();
 	private bool _isDragging = false;
 
 	[Export] public Array<InventoryItem> _startingItems = new Array<InventoryItem>();
@@ -45,11 +47,11 @@ public partial class Inventory : Control
 		
 		OnDragStart += () => {
 			_isDragging = true;
-			PickItemAt(MousePosIndex());
+			PickItem(MousePosIndex());
 		};
 		OnDragEnd += () => {
 			_isDragging = false;
-			PlaceItemAt(MousePosIndex());
+			DropItem(MousePosIndex());
 		};
 
 		var totalGridSize = _gridSize.X * _gridSize.Y;
@@ -61,8 +63,8 @@ public partial class Inventory : Control
 
 		for (int i = 0; i < totalGridSize; i++)
 		{
-			var rect = CreateRect(GridIndexToVector(i) * (_cellSize + _cellGapSize), _backgroundColor);
-			this.AddChild(rect);
+			var rect = CreateCell(GridIndexToVector(i) * (_cellSize + _cellGapSize), _backgroundTexture);
+			AddChild(rect);
 			_gridRects[i] = rect;
 		}
 
@@ -71,7 +73,6 @@ public partial class Inventory : Control
 			AddItem(_startingItems[i].index, _startingItems[i]);
 		}
 
-		UpdateCells();
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -99,7 +100,7 @@ public partial class Inventory : Control
 		}
     }
 
-	private void PickItemAt(int idx)
+	private void PickItem(int idx)
 	{
 		_draggedInventoryItem = GetItem(idx);
 		if (_draggedInventoryItem == null)
@@ -108,20 +109,17 @@ public partial class Inventory : Control
 		}
 
 		RemoveItem(_draggedInventoryItem);
-		
-		_previousColor = _draggedInventoryItem.itemData.Color;
-		UpdateCells();
 
 		var mousePos = GetLocalMousePosition();
 		foreach (var cell in _draggedInventoryItem.itemData.Cells)
 		{
-			var rect = CreateRect(mousePos + (cell * (_cellSize / 2)), _draggedInventoryItem.itemData.Color);
+			var rect = CreateCell(mousePos + (cell * (_cellSize / 2)), _draggedInventoryItem.itemData.Texture);
 			_draggedItemRender.Add(rect);
 			AddChild(rect);
 		}
 	}
 
-	private void PlaceItemAt(int idx)
+	private void DropItem(int idx)
 	{
 		if (_draggedInventoryItem == null)
 		{
@@ -149,10 +147,8 @@ public partial class Inventory : Control
 
 		AddItem(idx, _draggedInventoryItem);
 
-		_previousColor = _draggedInventoryItem.itemData.Color;
 		
 		_draggedInventoryItem = null;
-		UpdateCells();
 
 		foreach (var rect in _draggedItemRender)
 		{
@@ -172,7 +168,6 @@ public partial class Inventory : Control
 				(mousePos.X - _cellSize / 2) + inventoryItem.itemData.Cells[i].X * (_cellSize + _cellGapSize),
 				(mousePos.Y - _cellSize / 2) + inventoryItem.itemData.Cells[i].Y * (_cellSize + _cellGapSize)
 			);
-			rect.Color = inventoryItem.itemData.Color;
 		}
 	}
 
@@ -253,25 +248,14 @@ public partial class Inventory : Control
 		return false;
 	}
 
-	private void UpdateCells()
+	private TextureRect CreateCell(Vector2 pos, Texture2D tex)
 	{
-		for (int i = 0; i < _grid.Count; i++)
-		{
-			if (_grid[i] > 0)
-			{
-				foreach (var item in _items)
-				{
-					if (item.itemId == _grid[i])
-					{
-						_gridRects[i].Color = item.itemData.Color;
-					}
-				}
-			}
-			else
-			{
-				_gridRects[i].Color = _backgroundColor;
-			}
-		}
+		var cell = new TextureRect();
+		cell.CustomMinimumSize = new Vector2(_cellSize, _cellSize);
+		cell.Texture = tex;
+		cell.Position = pos;
+
+		return cell;
 	}
 
 	private ColorRect CreateRect(Vector2 pos, Color color)
@@ -299,24 +283,32 @@ public partial class Inventory : Control
 		return null;
 	}
 
-	public bool AddItem(int idx, InventoryItem inventoryItem)
+	public bool AddItem(int idx, InventoryItem item)
 	{
-		foreach (var cell in inventoryItem.itemData.Cells)
+		foreach (var cell in item.itemData.Cells)
 		{
 			// TODO: This possibly sets items on the grid when it really shouldn't leaving residue when it fails.
 			var i = GridVectorToIndexRelative(idx, cell);
 			if (i < _grid.Count)
 			{
-				_grid[i] = inventoryItem.itemId;
+				_grid[i] = item.itemId;
 			}
 			else
 			{
 				return false;
 			}
 		}
-		inventoryItem.index = idx;
-		_items.Add(inventoryItem);
-		UpdateCells();
+		
+		item.index = idx;
+		_items.Add(item);
+		
+		// Initializing the item rendering rects here because the functions are here...
+		foreach (var cell in item.itemData.Cells)
+		{
+			var rect = CreateCell(GridIndexToVector(GridVectorToIndexRelative(item.index, cell)) * (_cellSize + _cellGapSize), item.itemData.Texture);
+			item.itemRender.Add(rect);
+			AddChild(rect);
+		}
 		
 		return true;
 	}
@@ -328,12 +320,11 @@ public partial class Inventory : Control
 			if (_grid[i] == inventoryItem.itemId)
 			{
 				_grid[i] = 0;
-				_gridRects[i].Color = _backgroundColor;
 			}
 		}
+		inventoryItem.itemRender.Clear();
 
 		var success = _items.Remove(inventoryItem);
-		UpdateCells();
 		return success;
 	}
 }

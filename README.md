@@ -10,10 +10,12 @@ TODO:
 - Should not be able to interact with the inventory if mouse is outside. Eg.: While dragging mouse goes out of inventory.
 - Figure out some sort of overlay method instead of changing the colors of the items.
     - This could be made using a separate mouse class that handles interactions with the inventories.
+    - Rendering items with textures over eachother. Background inventory UI is the base bottom texture, everything rendered on top.
 - Introduce multiple inventories to pass items in between.
 - Make Inventory a tool class to preview in editor.
 
 Changelog
+- Using textures on top of each other. Allows for defined item textures. (2026-01-11)
 - Experiments with using resources for static data. (2026-01-11)
 - Multi cell items can block themselves from placement. They should ignore themselves when checking placement. (2026-01-08)
 - Translated the code to C# (2026-01-06)
