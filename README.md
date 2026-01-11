@@ -1,10 +1,12 @@
 # Some sort of Inventory System perhaps with a sprinkle of game.
 
 TODO:
-- Might need to rewrite how items store their location, or have them not at all store their location.
 - Make the Inventory class have API-like functions for easy interaction.
+- Inventory class as an object should be placeable anywhere in the UI not influencing functionality.
+- While dragging items, the whole item should be centered on the cursor not just the index one.
 - While dragging an item show a green or red where the item would be placed, indicating the validity of placement.
-- Should not be able to interact with the inventory if mouse is outside.
+- Might need to rewrite how items store their location, or have them not at all store their location.
+- Should not be able to interact with the inventory if mouse is outside. Eg.: While dragging mouse goes out of inventory.
 - Figure out some sort of overlay method instead of changing the colors of the items.
     - This could be made using a separate mouse class that handles interactions with the inventories.
 - Introduce multiple inventories to pass items in between.
