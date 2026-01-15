@@ -1,18 +1,18 @@
 # Some sort of Inventory System perhaps with a sprinkle of game.
 
 TODO:
-- Make the Inventory class have API-like functions for easy interaction.
-- Inventory class as an object should be placeable anywhere in the UI not influencing functionality.
-- While dragging items, the whole item should be centered on the cursor not just the index one.
-- While dragging an item show a green or red where the item would be placed, indicating the validity of placement.
-- Might need to rewrite how items store their location, or have them not at all store their location.
-  - Use Resources.
-- Should not be able to interact with the inventory if mouse is outside. Eg.: While dragging mouse goes out of inventory.
-- Figure out some sort of overlay method instead of changing the colors of the items.
-    - This could be made using a separate mouse class that handles interactions with the inventories.
-    - Rendering items with textures over eachother. Background inventory UI is the base bottom texture, everything rendered on top.
-- Introduce multiple inventories to pass items in between.
-- Make Inventory a tool class to preview in editor.
+- IMPORTANT:
+    - Make the Inventory class have API-like functions for easy interaction.
+    - Inventory class as an object should be placeable anywhere in the UI not influencing functionality.
+    - Might need to rewrite how items store their data. Should they store their data in one class, should I have multiple classes for the different states? One thing for sure: **use resources**!
+    - Should not be able to interact with the inventory if mouse is outside. Eg.: While dragging mouse goes out of inventory.
+    - Separate mouse class that handles interactions with the inventories.
+    - Introduce multiple inventories to pass items in between.
+    - Make Inventory a tool class to preview in editor.
+
+- WUDBEGNEISS:
+    - While dragging items, the whole item should be centered on the cursor not just the index one.
+    - While dragging an item show a green or red where the item would be placed, indicating the validity of placement.
 
 Changelog
 - Using textures on top of each other. Allows for defined item textures. (2026-01-11)
