@@ -14,6 +14,10 @@ TODO:
     - While dragging items, the whole item should be centered on the cursor not just the index one.
     - While dragging an item show a green or red where the item would be placed, indicating the validity of placement.
 
+- IDEAS:
+    - Make a separate Grid class that defines functions to work with and create grids for use in other contexts.
+        - Idea came from reading about delegation in the GoF book.
+
 Changelog
 - Using textures on top of each other. Allows for defined item textures. (2026-01-11)
 - Experiments with using resources for static data. (2026-01-11)
