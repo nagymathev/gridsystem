@@ -15,6 +15,7 @@ public partial class Inventory : Control
 	[Export] private Vector2I _gridSize = new Vector2I(10, 10);
 	[Export] private int _cellSize = 30;
 	[Export] private int _cellGapSize = 2;
+	private Grid<InventoryItem> _itemGrid; // Instantiate it later using gridsize variable.
 
 	// Background Rendering
 	private Array<TextureRect> _gridRects = new Array<TextureRect>();
@@ -32,6 +33,8 @@ public partial class Inventory : Control
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
+		_itemGrid = new Grid<InventoryItem>(_gridSize.X, _gridSize.Y);
+		
 		if (Engine.IsEditorHint())
 		{
 			if (_items.Count > 0)
@@ -47,11 +50,11 @@ public partial class Inventory : Control
 		
 		OnDragStart += () => {
 			_isDragging = true;
-			PickItem(MousePosIndex());
+			PickItem(ScreenSpacePixelToGridPosition(GetLocalMousePosition()));
 		};
 		OnDragEnd += () => {
 			_isDragging = false;
-			DropItem(MousePosIndex());
+			PlaceItem(ScreenSpacePixelToGridPosition(GetLocalMousePosition()));
 		};
 
 		var totalGridSize = _gridSize.X * _gridSize.Y;
@@ -61,6 +64,7 @@ public partial class Inventory : Control
 
 		_gridRects.Resize(totalGridSize);
 
+		// Background Rects
 		for (int i = 0; i < totalGridSize; i++)
 		{
 			var rect = CreateCell(GridIndexToVector(i) * (_cellSize + _cellGapSize), _backgroundTexture);
@@ -68,9 +72,9 @@ public partial class Inventory : Control
 			_gridRects[i] = rect;
 		}
 
-		for (int i = 0; i < _startingItems.Count; i++)
+		foreach (var item in _startingItems)
 		{
-			AddItem(_startingItems[i].index, _startingItems[i]);
+			AddItem(item, item.inventoryPosition);
 		}
 
 	}
@@ -100,9 +104,9 @@ public partial class Inventory : Control
 		}
     }
 
-	private void PickItem(int idx)
+	private void PickItem(Vector2 pos)
 	{
-		_draggedInventoryItem = GetItem(idx);
+		_draggedInventoryItem = GetItem(pos);
 		if (_draggedInventoryItem == null)
 		{
 			return;
@@ -110,6 +114,8 @@ public partial class Inventory : Control
 
 		RemoveItem(_draggedInventoryItem);
 
+		// This creates the hovering look.
+		// TODO: Remove this and implement IRenderable on items.
 		var mousePos = GetLocalMousePosition();
 		foreach (var cell in _draggedInventoryItem.itemData.Cells)
 		{
@@ -119,37 +125,17 @@ public partial class Inventory : Control
 		}
 	}
 
-	private void DropItem(int idx)
+	private void PlaceItem(Vector2 pos)
 	{
 		if (_draggedInventoryItem == null)
 		{
 			return;
 		}
 
-		var newItem = _draggedInventoryItem.Clone();
-		newItem.index = idx;
-		if (IsItemOutOfBounds(newItem) || !IsItemCellsEmpty(newItem))
-		{
-			AddItem(_draggedInventoryItem.index, _draggedInventoryItem);
-
-			foreach (var rect in _draggedItemRender)
-			{
-				RemoveChild(rect);
-				rect.QueueFree();
-			}
-
-			_draggedItemRender.Clear();
-			_draggedInventoryItem = null;
-
-			return;
-		}
-		newItem.QueueFree();
-
-		AddItem(idx, _draggedInventoryItem);
-
-		
+		AddItem(_draggedInventoryItem, pos);
 		_draggedInventoryItem = null;
 
+		// TODO: Remove this after implementing IRenderable on the InventoryItems.
 		foreach (var rect in _draggedItemRender)
 		{
 			RemoveChild(rect);
@@ -176,6 +162,7 @@ public partial class Inventory : Control
 		return GridVectorToIndex(ScreenSpacePixelToGridPosition(GetLocalMousePosition()));
 	}
 
+	// Mouse pos on grid.
 	private Vector2 ScreenSpacePixelToGridPosition(Vector2 pos)
 	{
 		var gridPos = new Vector2(
@@ -213,37 +200,12 @@ public partial class Inventory : Control
 		return _grid[idx] <= 0;
 	}
 
-	// Are there enough free cells for an item?
-	private bool IsItemCellsEmpty(InventoryItem inventoryItem)
-	{
-		foreach (var cell in inventoryItem.itemData.Cells)
-		{
-			if (!IsCellEmpty(GridVectorToIndexRelative(inventoryItem.index, cell)))
-			{
-				return false;
-			}
-		}
-		return true;
-	}
-
 	private bool IsOutOfBounds(Vector2 cell)
 	{
 		// This is simple rectangular checking, will not work if I later have crazy shapes.
 		if ((int)cell.X < 0 || (int)cell.X > _gridSize.X - 1 || (int)cell.Y < 0 || (int)cell.Y > _gridSize.Y - 1)
 		{
 			return true;
-		}
-		return false;
-	}
-
-	private bool IsItemOutOfBounds(InventoryItem inventoryItem)
-	{
-		foreach (var cell in inventoryItem.itemData.Cells)
-		{
-			if (IsOutOfBounds(GridLocalToGlobal(inventoryItem.index, cell)))
-			{
-				return true;
-			}
 		}
 		return false;
 	}
@@ -268,63 +230,21 @@ public partial class Inventory : Control
 		return rect;
 	}
 
-	public InventoryItem GetItem(int idx)
+	public InventoryItem GetItem(Vector2 pos)
 	{
-		foreach (InventoryItem item in _items)
-		{
-			foreach (Vector2 cell in item.itemData.Cells)
-			{
-				if (GridVectorToIndexRelative(item.index, cell) == idx)
-				{
-					return item;
-				}
-			}
-		}
-		return null;
+		return _itemGrid.Get(pos);
 	}
 
-	public bool AddItem(int idx, InventoryItem item)
+	public void AddItem(InventoryItem item, Vector2 pos)
 	{
 		foreach (var cell in item.itemData.Cells)
 		{
-			// TODO: This possibly sets items on the grid when it really shouldn't leaving residue when it fails.
-			var i = GridVectorToIndexRelative(idx, cell);
-			if (i < _grid.Count)
-			{
-				_grid[i] = item.itemId;
-			}
-			else
-			{
-				return false;
-			}
+			_itemGrid.Add(pos + cell, item);
 		}
-		
-		item.index = idx;
-		_items.Add(item);
-		
-		// Initializing the item rendering rects here because the functions are here...
-		foreach (var cell in item.itemData.Cells)
-		{
-			var rect = CreateCell(GridIndexToVector(GridVectorToIndexRelative(item.index, cell)) * (_cellSize + _cellGapSize), item.itemData.Texture);
-			item.itemRender.Add(rect);
-			AddChild(rect);
-		}
-		
-		return true;
 	}
 
-	public bool RemoveItem(InventoryItem inventoryItem)
+	public void RemoveItem(InventoryItem item)
 	{
-		for (int i = 0; i < _grid.Count; i++)
-		{
-			if (_grid[i] == inventoryItem.itemId)
-			{
-				_grid[i] = 0;
-			}
-		}
-		inventoryItem.itemRender.Clear();
-
-		var success = _items.Remove(inventoryItem);
-		return success;
+		_itemGrid.Delete(item);
 	}
 }

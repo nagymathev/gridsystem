@@ -17,8 +17,11 @@ TODO:
 - IDEAS:
     - Make a separate Grid class that defines functions to work with and create grids for use in other contexts.
         - Idea came from reading about delegation in the GoF book.
+    - Make a separate InventoryRender class that is purely for visualizing the contents of the inventory.
+        - With this all inventories and items should NEVER attempt to render themselves actually. It is the job of this class.
 
 Changelog
+- Create a Grid class that will be used for future grid operations. Stores pointers to objects. (2026-01-15)
 - Using textures on top of each other. Allows for defined item textures. (2026-01-11)
 - Experiments with using resources for static data. (2026-01-11)
 - Multi cell items can block themselves from placement. They should ignore themselves when checking placement. (2026-01-08)

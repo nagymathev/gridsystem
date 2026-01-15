@@ -25,6 +25,10 @@ grow_vertical = 2
 
 [node name="Inventory" parent="." node_paths=PackedStringArray("_startingItems") instance=ExtResource("1_nt7q6")]
 layout_mode = 1
+offset_left = 120.0
+offset_top = -172.0
+offset_right = 440.0
+offset_bottom = 148.0
 _startingItems = [NodePath("InventoryItem4"), NodePath("InventoryItem5"), NodePath("InventoryItem6")]
 
 [node name="InventoryItem4" type="Node" parent="Inventory"]
@@ -42,6 +46,34 @@ itemData = ExtResource("4_ktti3")
 metadata/_custom_type_script = "uid://dcyvo6v8e16pa"
 
 [node name="InventoryItem6" type="Node" parent="Inventory"]
+script = ExtResource("2_8dubc")
+itemId = 69
+itemData = SubResource("Resource_vdcm2")
+metadata/_custom_type_script = "uid://dcyvo6v8e16pa"
+
+[node name="Inventory2" parent="." node_paths=PackedStringArray("_startingItems") instance=ExtResource("1_nt7q6")]
+layout_mode = 1
+offset_left = -493.0
+offset_top = -195.0
+offset_right = -173.0
+offset_bottom = 125.0
+_startingItems = [NodePath("InventoryItem4"), NodePath("InventoryItem5"), NodePath("InventoryItem6")]
+
+[node name="InventoryItem4" type="Node" parent="Inventory2"]
+script = ExtResource("2_8dubc")
+itemId = 14
+index = 3
+itemData = ExtResource("3_p7vwb")
+metadata/_custom_type_script = "uid://dcyvo6v8e16pa"
+
+[node name="InventoryItem5" type="Node" parent="Inventory2"]
+script = ExtResource("2_8dubc")
+itemId = 4
+index = 5
+itemData = ExtResource("4_ktti3")
+metadata/_custom_type_script = "uid://dcyvo6v8e16pa"
+
+[node name="InventoryItem6" type="Node" parent="Inventory2"]
 script = ExtResource("2_8dubc")
 itemId = 69
 itemData = SubResource("Resource_vdcm2")

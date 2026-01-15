@@ -1,15 +1,13 @@
 using Godot;
 using System;
 
+namespace InventorySystem;
+
 public partial class InventoryMouse : Node
 {
-	// Called when the node enters the scene tree for the first time.
-	public override void _Ready()
-	{
-	}
-
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
-	{
-	}
+    [Export] private InventoryItem _draggedItem;
+    [Export] private bool _isDragging;
+    private Grid<TextureRect> _renderDraggedItem;
+    
+    // TODO: Identify which inventory the mouse is hovering over.
 }
