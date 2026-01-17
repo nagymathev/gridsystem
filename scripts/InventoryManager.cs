@@ -36,6 +36,7 @@ public partial class InventoryManager : Node
         MouseEnterInventory += inventory =>
         {
             _mouse.SetInventory(inventory);
+            GD.Print("Mouse inventory changed");
         };
     }
 }

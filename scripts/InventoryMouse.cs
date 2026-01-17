@@ -9,7 +9,7 @@ public partial class InventoryMouse : Node
     [Export] private InventoryItem _draggedItem;
     [Export] private bool _isDragging;
     [Export] private Inventory _currentInventory;
-    private Grid<TextureRect> _renderDraggedItem;
+    private TextureRect _renderDraggedItem;
     
     [Signal] public delegate void OnDragStartEventHandler();
     [Signal] public delegate void OnDragEndEventHandler();
@@ -22,6 +22,11 @@ public partial class InventoryMouse : Node
 
     public override void _Ready()
     {
+        _renderDraggedItem = new TextureRect();
+        _renderDraggedItem.ZIndex = 15;
+        _renderDraggedItem.MouseFilter = Control.MouseFilterEnum.Ignore;
+        AddChild(_renderDraggedItem);
+        
         OnDragStart += () =>
         {
             _isDragging = true;
@@ -33,6 +38,15 @@ public partial class InventoryMouse : Node
             _isDragging = false;
             PlaceItem(InventoryPosition(_currentInventory.GetLocalMousePosition()));
         };
+    }
+
+    public override void _Process(double delta)
+    {
+        if (_isDragging && _draggedItem != null)
+        {
+            _renderDraggedItem.GlobalPosition = _currentInventory.GetGlobalMousePosition() -
+                                                Vector2.One * (_currentInventory.inventoryParameters.cellSize + _currentInventory.inventoryParameters.cellGapSize) / 2;
+        }
     }
 
     public override void _Input(InputEvent @event)
@@ -60,6 +74,8 @@ public partial class InventoryMouse : Node
         }
 
         _currentInventory.RemoveItem(_draggedItem);
+
+        _renderDraggedItem.Texture = _draggedItem.itemData.Texture;
     }
 
     private void PlaceItem(Vector2 pos)
@@ -71,6 +87,7 @@ public partial class InventoryMouse : Node
 
         _currentInventory.AddItem(_draggedItem, pos);
         _draggedItem = null;
+        _renderDraggedItem.Texture = null;
     }
 
     private Vector2 InventoryPosition(Vector2 globalPos)

@@ -34,6 +34,7 @@ public partial class InventoryRenderer : Control
     private TextureRect CreateRect()
     {
         var rect = new TextureRect();
+        rect.MouseFilter = MouseFilterEnum.Ignore;
         return rect;
     }
 }
