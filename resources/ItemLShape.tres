@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3 uid="uid://b1k3ck5t8d1tu"]
+
+[ext_resource type="Texture2D" uid="uid://cdhlplioq45et" path="res://assets/L-shape32.svg" id="1_60u8a"]
+[ext_resource type="Script" uid="uid://dvviuy2b6oeyh" path="res://scripts/ItemData.cs" id="1_aofcp"]
+
+[resource]
+script = ExtResource("1_aofcp")
+Name = "L Shape Nana"
+Cells = Array[Vector2]([Vector2(0, 0), Vector2(0, 1), Vector2(1, 1)])
+Texture = ExtResource("1_60u8a")
+metadata/_custom_type_script = "uid://dvviuy2b6oeyh"

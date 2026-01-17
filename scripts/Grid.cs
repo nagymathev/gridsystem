@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
+using Godot.Collections;
 
 namespace InventorySystem;
 
@@ -22,7 +24,10 @@ public class Grid<T> where T : class
 
     public Grid(int sizeX, int sizeY)
     {
+        _sizeX = sizeX;
+        _sizeY = sizeY;
         _grid.Capacity = sizeX * sizeY;
+        _grid.AddRange(Enumerable.Repeat<T>(null, sizeX * sizeY));
     }
 
     public T Get(Vector2 pos)

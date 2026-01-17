@@ -2,12 +2,6 @@
 
 TODO:
 - IMPORTANT:
-    - Make the Inventory class have API-like functions for easy interaction.
-    - Inventory class as an object should be placeable anywhere in the UI not influencing functionality.
-    - Might need to rewrite how items store their data. Should they store their data in one class, should I have multiple classes for the different states? One thing for sure: **use resources**!
-    - Should not be able to interact with the inventory if mouse is outside. Eg.: While dragging mouse goes out of inventory.
-    - Separate mouse class that handles interactions with the inventories.
-    - Introduce multiple inventories to pass items in between.
     - Make Inventory a tool class to preview in editor.
 
 - WUDBEGNEISS:
@@ -15,12 +9,19 @@ TODO:
     - While dragging an item show a green or red where the item would be placed, indicating the validity of placement.
 
 - IDEAS:
+
+Changelog
+- (2026-01-17)
     - Make a separate Grid class that defines functions to work with and create grids for use in other contexts.
         - Idea came from reading about delegation in the GoF book.
     - Make a separate InventoryRender class that is purely for visualizing the contents of the inventory.
         - With this all inventories and items should NEVER attempt to render themselves actually. It is the job of this class.
-
-Changelog
+    - Introduce multiple inventories to pass items in between.
+    - Inventory class as an object should be placeable anywhere in the UI not influencing functionality.
+    - Make the Inventory class have API-like functions for easy interaction.
+    - Might need to rewrite how items store their data. Should they store their data in one class, should I have multiple classes for the different states? One thing for sure: **use resources**!
+    - Should not be able to interact with the inventory if mouse is outside. Eg.: While dragging mouse goes out of inventory.
+    - Separate mouse class that handles interactions with the inventories.
 - Create a Grid class that will be used for future grid operations. Stores pointers to objects. (2026-01-15)
 - Using textures on top of each other. Allows for defined item textures. (2026-01-11)
 - Experiments with using resources for static data. (2026-01-11)
