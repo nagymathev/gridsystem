@@ -11,6 +11,10 @@ public partial class InventoryMouse : Node
     [Export] private Inventory _currentInventory;
     private TextureRect _renderDraggedItem;
     
+    // For moving the held item back
+    private Vector2 _originalLocation;
+    private Inventory _originalInventory;
+    
     [Signal] public delegate void OnDragStartEventHandler();
     [Signal] public delegate void OnDragEndEventHandler();
     
@@ -30,13 +34,13 @@ public partial class InventoryMouse : Node
         OnDragStart += () =>
         {
             _isDragging = true;
-            PickItem(InventoryPosition(_currentInventory.GetLocalMousePosition()));
+            PickItem(InventoryPosition(_currentInventory.GetLocalMousePosition()), _currentInventory);
         };
         
         OnDragEnd += () =>
         {
             _isDragging = false;
-            PlaceItem(InventoryPosition(_currentInventory.GetLocalMousePosition()));
+            PlaceItem(InventoryPosition(_currentInventory.GetLocalMousePosition()), _currentInventory);
         };
     }
 
@@ -65,29 +69,38 @@ public partial class InventoryMouse : Node
         }
     }
     
-    private void PickItem(Vector2 pos)
+    private void PickItem(Vector2 pos, Inventory inventory)
     {
-        _draggedItem = _currentInventory.GetItem(pos);
+        _draggedItem = inventory.GetItem(pos);
         if (_draggedItem == null)
         {
             return;
         }
 
-        _currentInventory.RemoveItem(_draggedItem);
+        _originalLocation = _draggedItem.inventoryPosition;
+        _originalInventory = inventory;
+        inventory.RemoveItem(_draggedItem);
 
         _renderDraggedItem.Texture = _draggedItem.itemData.Texture;
     }
 
-    private void PlaceItem(Vector2 pos)
+    private void PlaceItem(Vector2 pos, Inventory inventory)
     {
         if (_draggedItem == null)
         {
             return;
         }
 
-        _currentInventory.AddItem(_draggedItem, pos);
-        _draggedItem = null;
-        _renderDraggedItem.Texture = null;
+        try
+        {
+            inventory.AddItem(_draggedItem, pos);
+            _draggedItem = null;
+            _renderDraggedItem.Texture = null;
+        }
+        catch (InvalidLocationException ex)
+        {
+            PlaceItem(_originalLocation, _originalInventory);
+        }
     }
 
     private Vector2 InventoryPosition(Vector2 globalPos)

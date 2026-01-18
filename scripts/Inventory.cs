@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using Godot;
 using Godot.Collections;
 
@@ -92,6 +94,12 @@ public partial class Inventory : Control
 
 	public void AddItem(InventoryItem item, Vector2 pos)
 	{
+		if (!_itemGrid.IsFree(item.itemData.Cells.Select(p => p + pos))) // Need to offset
+		{
+			// Ideally I would handle this.
+			GD.Print("[Inventory] Selected location not free!");
+			throw new InvalidLocationException();
+		}
 		foreach (var cell in item.itemData.Cells)
 		{
 			_itemGrid.Add(pos + cell, item);
@@ -106,5 +114,22 @@ public partial class Inventory : Control
 		_itemGrid.Delete(item);
 		item.inventoryPosition = Vector2.Zero;
 		_items.Remove(item);
+	}
+}
+
+public class InvalidLocationException : Exception
+{
+	public InvalidLocationException()
+	{
+	}
+
+	public InvalidLocationException(string message)
+		: base(message)
+	{
+	}
+	
+	public InvalidLocationException(string message, Exception inner)
+		: base(message, inner)
+	{
 	}
 }
