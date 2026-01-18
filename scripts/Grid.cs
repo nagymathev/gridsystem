@@ -42,7 +42,7 @@ public class Grid<T> where T : class
         _grid[VectorToIndex(pos)] = element;
     }
     
-    public void Add(List<Vector2> pos, T element)
+    public void Add(IEnumerable<Vector2> pos, T element)
     {
         foreach (var p in pos)
         {
@@ -67,7 +67,7 @@ public class Grid<T> where T : class
         _grid[VectorToIndex(pos)] = null;
     }
     
-    public void Delete(List<Vector2> pos)
+    public void Delete(IEnumerable<Vector2> pos)
     {
         foreach (var p in pos)
         {
@@ -86,7 +86,7 @@ public class Grid<T> where T : class
         return false;
     }
     
-    public bool IsFree(List<Vector2> pos)
+    public bool IsFree(IEnumerable<Vector2> pos)
     {
         bool isFree = true;
         foreach (var p in pos)
