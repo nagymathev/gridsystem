@@ -97,7 +97,7 @@ public partial class InventoryMouse : Node
             _draggedItem = null;
             _renderDraggedItem.Texture = null;
         }
-        catch (InvalidLocationException ex)
+        catch (Exception ex) when (ex is InvalidLocationException || ex is IndexOutOfRangeException)
         {
             PlaceItem(_originalLocation, _originalInventory);
         }
