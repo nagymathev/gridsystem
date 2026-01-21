@@ -50,6 +50,10 @@ public partial class InventoryMouse : Node
         {
             _renderDraggedItem.GlobalPosition = _currentInventory.GetGlobalMousePosition() -
                                                 Vector2.One * (_currentInventory.inventoryParameters.cellSize + _currentInventory.inventoryParameters.cellGapSize) / 2;
+            
+            // Visualizing whether we can place the item.
+            var canPlace = PlaceItem(InventoryPosition(_currentInventory.GetLocalMousePosition()), _currentInventory, true);
+            _renderDraggedItem.Modulate = canPlace ? new Color("#0f0") :  new Color("#f00");
         }
     }
 
@@ -84,23 +88,30 @@ public partial class InventoryMouse : Node
         _renderDraggedItem.Texture = _draggedItem.itemData.Texture;
     }
 
-    private void PlaceItem(Vector2 pos, Inventory inventory)
+    private bool PlaceItem(Vector2 pos, Inventory inventory, bool preview = false)
     {
         if (_draggedItem == null)
         {
-            return;
+            return false;
         }
 
-        try
+        if (preview)
         {
-            inventory.AddItem(_draggedItem, pos);
+            return inventory.AddItem(_draggedItem, pos, true);
+        }
+
+        var success = inventory.AddItem(_draggedItem, pos);
+        if (success)
+        {
             _draggedItem = null;
             _renderDraggedItem.Texture = null;
         }
-        catch (Exception ex) when (ex is InvalidLocationException || ex is IndexOutOfRangeException)
+        else
         {
             PlaceItem(_originalLocation, _originalInventory);
         }
+
+        return true;
     }
 
     private Vector2 InventoryPosition(Vector2 globalPos)

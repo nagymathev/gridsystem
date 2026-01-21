@@ -32,14 +32,17 @@ public class Grid<T> where T : class
 
     public T Get(Vector2 pos)
     {
-        IsInRange(pos);
-        return _grid[VectorToIndex(pos)];
+        return !IsInRange(pos) ? null : _grid[VectorToIndex(pos)];
     }
 
-    public void Add(Vector2 pos, T element)
+    public bool Add(Vector2 pos, T element)
     {
-        IsInRange(pos);
+        if (!IsInRange(pos))
+        {
+            return false;
+        }
         _grid[VectorToIndex(pos)] = element;
+        return true;
     }
     
     public void Add(IEnumerable<Vector2> pos, T element)
@@ -77,7 +80,11 @@ public class Grid<T> where T : class
 
     public bool IsFree(Vector2 pos)
     {
-        IsInRange(pos);
+        if (!IsInRange(pos))
+        {
+            return false;
+        }
+        
         if (_grid[VectorToIndex(pos)] == null)
         {
             return true;
@@ -99,12 +106,9 @@ public class Grid<T> where T : class
         return isFree;
     }
 
-    private void IsInRange(Vector2 pos)
+    private bool IsInRange(Vector2 pos)
     {
-        if (pos.X < 0 || pos.X >= _sizeX || pos.Y < 0 || pos.Y >= _sizeY)
-        {
-            throw new IndexOutOfRangeException();
-        }
+        return !(pos.X < 0) && !(pos.X >= _sizeX) && !(pos.Y < 0) && !(pos.Y >= _sizeY);
     }
     
     private int VectorToIndex(Vector2 pos)
