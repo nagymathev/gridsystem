@@ -96,8 +96,6 @@ public partial class Inventory : Control
 	{
 		if (!_itemGrid.IsFree(item.itemData.Cells.Select(p => p + pos))) // Need to offset
 		{
-			// Ideally I would handle this.
-			GD.Print("[Inventory] Selected location not free!");
 			return false;
 		}
 

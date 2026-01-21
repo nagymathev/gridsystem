@@ -19,6 +19,8 @@ _inventories = []
 
 [node name="InventoryMouse" type="Node" parent="."]
 script = ExtResource("1_p7vwb")
+_positiveActionColor = Color(0, 1, 0, 1)
+_negativeActionColor = Color(1, 0, 0, 1)
 metadata/_custom_type_script = "uid://0q3ki3i2tc7f"
 
 [node name="Inventory" parent="." node_paths=PackedStringArray("_startingItems") instance=ExtResource("1_nt7q6")]

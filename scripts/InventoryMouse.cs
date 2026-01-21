@@ -10,6 +10,9 @@ public partial class InventoryMouse : Node
     [Export] private bool _isDragging;
     [Export] private Inventory _currentInventory;
     private TextureRect _renderDraggedItem;
+
+    [Export] private Color _positiveActionColor;
+    [Export] private Color _negativeActionColor;
     
     // For moving the held item back
     private Vector2 _originalLocation;
@@ -53,7 +56,7 @@ public partial class InventoryMouse : Node
             
             // Visualizing whether we can place the item.
             var canPlace = PlaceItem(InventoryPosition(_currentInventory.GetLocalMousePosition()), _currentInventory, true);
-            _renderDraggedItem.Modulate = canPlace ? new Color("#0f0") :  new Color("#f00");
+            _renderDraggedItem.Modulate = canPlace ? _positiveActionColor :  _negativeActionColor;
         }
     }
 
