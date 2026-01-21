@@ -10,8 +10,8 @@ public partial class InventoryManager : Node
     [Signal]
     public delegate void MouseExitInventoryEventHandler(Inventory inventory);
 
-    [Export] private InventoryMouse _mouse;
-    [Export] private Array<Inventory> _inventories;
+    private InventoryMouse _mouse;
+    private Array<Inventory> _inventories;
 
     public override void _Ready()
     {
@@ -36,7 +36,6 @@ public partial class InventoryManager : Node
         MouseEnterInventory += inventory =>
         {
             _mouse.SetInventory(inventory);
-            GD.Print("Mouse inventory changed");
         };
     }
 }

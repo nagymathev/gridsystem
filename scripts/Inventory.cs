@@ -104,11 +104,8 @@ public partial class Inventory : Control
 		{
 			return true;
 		}
-		
-		foreach (var cell in item.itemData.Cells)
-		{
-			_itemGrid.Add(pos + cell, item);
-		}
+
+		_itemGrid.Add(item.itemData.Cells.Select(p => p + pos), item);
 
 		item.inventoryPosition = pos;
 		_items.Add(item);

@@ -21,7 +21,6 @@ public partial class InventoryMouse : Node
     [Signal] public delegate void OnDragStartEventHandler();
     [Signal] public delegate void OnDragEndEventHandler();
     
-    // TODO: Identify which inventory the mouse is hovering over.
     public void SetInventory(Inventory inventory)
     {
         _currentInventory = inventory;

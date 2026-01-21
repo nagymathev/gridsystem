@@ -4,9 +4,11 @@ TODO:
 - IMPORTANT:
     - Make Inventory a tool class to preview in editor.
     - Find a different way to offset item positions. The current method of storing relative location then offsetting can be awkward sometimes.
+        - This would help with making items rotatable.
 
 - WUDBEGNEISS:
     - While dragging items, the whole item should be centered on the cursor not just the index one.
+        - This requires the change to how I handle the offset and positioning.
 
 - IDEAS:
 
