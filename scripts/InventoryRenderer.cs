@@ -19,6 +19,8 @@ public partial class InventoryRenderer : Control
             rect.Texture = item.itemData.Texture;
             rect.GlobalPosition = (item.inventoryPosition * (_inventory.inventoryParameters.cellSize +
                                                              _inventory.inventoryParameters.cellGapSize));
+            rect.PivotOffset = rect.Size / 2;
+            rect.Rotation = item.Rotation;
             AddChild(rect);
         }
     }

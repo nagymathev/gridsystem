@@ -10,6 +10,7 @@ public partial class InventoryMouse : Node
     [Export] private bool _isDragging;
     [Export] private Inventory _currentInventory;
     private TextureRect _renderDraggedItem;
+    private Control _renderContainer;
 
     [Export] private Color _positiveActionColor;
     [Export] private Color _negativeActionColor;
@@ -20,6 +21,7 @@ public partial class InventoryMouse : Node
     
     [Signal] public delegate void OnDragStartEventHandler();
     [Signal] public delegate void OnDragEndEventHandler();
+    [Signal] public delegate void OnItemRotateEventHandler();
     
     public void SetInventory(Inventory inventory)
     {
@@ -28,10 +30,14 @@ public partial class InventoryMouse : Node
 
     public override void _Ready()
     {
+        _renderContainer = new Control();
+        _renderContainer.PivotOffset = new Vector2(32, 32);
+        AddChild(_renderContainer);
         _renderDraggedItem = new TextureRect();
+        _renderDraggedItem.PivotOffset = new Vector2(32, 32);
         _renderDraggedItem.ZIndex = 15;
         _renderDraggedItem.MouseFilter = Control.MouseFilterEnum.Ignore;
-        AddChild(_renderDraggedItem);
+        _renderContainer.AddChild(_renderDraggedItem);
         
         OnDragStart += () =>
         {
@@ -44,14 +50,25 @@ public partial class InventoryMouse : Node
             _isDragging = false;
             PlaceItem(InventoryPosition(_currentInventory.GetLocalMousePosition()), _currentInventory);
         };
+
+        OnItemRotate += () =>
+        {
+            if (_isDragging != null && _draggedItem != null)
+            {
+                _draggedItem.Rotate();
+                _renderDraggedItem.SetRotation(_draggedItem.Rotation);
+                
+            }
+        };
     }
 
     public override void _Process(double delta)
     {
         if (_isDragging && _draggedItem != null)
         {
-            _renderDraggedItem.GlobalPosition = _currentInventory.GetGlobalMousePosition() -
-                                                Vector2.One * (_currentInventory.inventoryParameters.cellSize + _currentInventory.inventoryParameters.cellGapSize) / 2;
+            _renderDraggedItem.Position = _currentInventory.GetGlobalMousePosition() -
+                                                (new Vector2(0.5f, 0.5f) + _draggedItem.Center()) *
+                                                (_currentInventory.inventoryParameters.cellSize + _currentInventory.inventoryParameters.cellGapSize);
             
             // Visualizing whether we can place the item.
             var canPlace = PlaceItem(InventoryPosition(_currentInventory.GetLocalMousePosition()), _currentInventory, true);
@@ -68,9 +85,14 @@ public partial class InventoryMouse : Node
             {
                 EmitSignal(SignalName.OnDragStart);
             }
-            if (mb.ButtonIndex == MouseButton.Left && !mb.Pressed)
+            else if (mb.ButtonIndex == MouseButton.Left && !mb.Pressed)
             {
                 EmitSignal(SignalName.OnDragEnd);
+            }
+
+            if (mb.ButtonIndex == MouseButton.Right && mb.Pressed)
+            {
+                EmitSignal(SignalName.OnItemRotate);
             }
         }
     }
@@ -88,6 +110,7 @@ public partial class InventoryMouse : Node
         inventory.RemoveItem(_draggedItem);
 
         _renderDraggedItem.Texture = _draggedItem.itemData.Texture;
+        _renderDraggedItem.SetRotation(_draggedItem.Rotation);
     }
 
     private bool PlaceItem(Vector2 pos, Inventory inventory, bool preview = false)
@@ -107,6 +130,7 @@ public partial class InventoryMouse : Node
         {
             _draggedItem = null;
             _renderDraggedItem.Texture = null;
+            _renderDraggedItem.SetRotation(0);
         }
         else
         {

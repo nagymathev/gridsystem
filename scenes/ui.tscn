@@ -1,12 +1,14 @@
-[gd_scene load_steps=6 format=3 uid="uid://bftbkqgxvubyf"]
+[gd_scene load_steps=8 format=3 uid="uid://bftbkqgxvubyf"]
 
 [ext_resource type="PackedScene" uid="uid://de13a8pse1wke" path="res://scenes/inventory.tscn" id="1_nt7q6"]
 [ext_resource type="Script" uid="uid://0q3ki3i2tc7f" path="res://scripts/InventoryMouse.cs" id="1_p7vwb"]
 [ext_resource type="Script" uid="uid://bq3jmjmbe615a" path="res://scripts/InventoryManager.cs" id="1_wm3ai"]
 [ext_resource type="Script" uid="uid://dcyvo6v8e16pa" path="res://scripts/InventoryItem.cs" id="2_8dubc"]
 [ext_resource type="Resource" uid="uid://b1k3ck5t8d1tu" path="res://resources/ItemLShape.tres" id="5_8dubc"]
+[ext_resource type="Texture2D" uid="uid://d1674g0fekp8i" path="res://assets/stripy-L.svg" id="6_8dubc"]
+[ext_resource type="Resource" uid="uid://dea4rl2r3g7ql" path="res://resources/ItemSquare.tres" id="6_p7vwb"]
 
-[node name="UI" type="Control" node_paths=PackedStringArray("_inventories")]
+[node name="UI" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -15,7 +17,6 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_wm3ai")
-_inventories = []
 
 [node name="InventoryMouse" type="Node" parent="."]
 script = ExtResource("1_p7vwb")
@@ -29,12 +30,19 @@ offset_left = 120.0
 offset_top = -172.0
 offset_right = 440.0
 offset_bottom = 148.0
-_startingItems = [NodePath("InventoryItem5")]
+_startingItems = [NodePath("InventoryItem5"), NodePath("InventoryItem6")]
 
 [node name="InventoryItem5" type="Node" parent="Inventory"]
 script = ExtResource("2_8dubc")
 itemId = 4
 itemData = ExtResource("5_8dubc")
+metadata/_custom_type_script = "uid://dcyvo6v8e16pa"
+
+[node name="InventoryItem6" type="Node" parent="Inventory"]
+script = ExtResource("2_8dubc")
+itemId = 34
+inventoryPosition = Vector2(4, 6)
+itemData = ExtResource("6_p7vwb")
 metadata/_custom_type_script = "uid://dcyvo6v8e16pa"
 
 [node name="Inventory2" parent="." node_paths=PackedStringArray("_startingItems") instance=ExtResource("1_nt7q6")]
@@ -47,6 +55,13 @@ _startingItems = [NodePath("InventoryItem5")]
 
 [node name="InventoryItem5" type="Node" parent="Inventory2"]
 script = ExtResource("2_8dubc")
-itemId = 4
+itemId = 5
 itemData = ExtResource("5_8dubc")
 metadata/_custom_type_script = "uid://dcyvo6v8e16pa"
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+pivot_offset = Vector2(32, 32)
+texture = ExtResource("6_8dubc")

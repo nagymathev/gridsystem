@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3 uid="uid://dea4rl2r3g7ql"]
 
-[ext_resource type="Texture2D" uid="uid://cx3d0xtkxsbfa" path="res://assets/raw_sapphire_block.png" id="1_nnfh3"]
+[ext_resource type="Texture2D" uid="uid://cgksgma3vtycx" path="res://assets/square-64.svg" id="1_nnfh3"]
 [ext_resource type="Script" uid="uid://dvviuy2b6oeyh" path="res://scripts/ItemData.cs" id="1_sgbtl"]
 
 [resource]
