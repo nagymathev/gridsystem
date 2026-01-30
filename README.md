@@ -3,14 +3,13 @@
 TODO:
 - IMPORTANT:
     - Make Inventory a tool class to preview in editor.
-    - While dragging item, there should be an "underlay?" that shows which cells will be occupied when placing.
-    - Additionally stop using that mouse location for placing the items because sometimes that is empty or places far away.
 
 - WUDBEGNEISS:
 
 - IDEAS:
 
 Changelog
+- Item dragging indicator (2026-01-30)
 - While dragging an item show a green or red where the item would be placed, indicating the validity of placement. (2026-01-21)
 - (2026-01-17)
     - Make a separate Grid class that defines functions to work with and create grids for use in other contexts.

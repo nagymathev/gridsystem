@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using Godot.Collections;
 
 namespace InventorySystem;
 
@@ -10,6 +11,7 @@ public partial class InventoryMouse : Node
     [Export] private bool _isDragging;
     [Export] private Inventory _currentInventory;
     private TextureRect _renderDraggedItem;
+    private Array<ColorRect> _renderPlacementIndicator;
     private Control _renderContainer;
 
     [Export] private Color _positiveActionColor;
@@ -33,11 +35,14 @@ public partial class InventoryMouse : Node
         _renderContainer = new Control();
         _renderContainer.PivotOffset = new Vector2(32, 32);
         AddChild(_renderContainer);
+        
         _renderDraggedItem = new TextureRect();
         _renderDraggedItem.PivotOffset = new Vector2(32, 32);
         _renderDraggedItem.ZIndex = 15;
         _renderDraggedItem.MouseFilter = Control.MouseFilterEnum.Ignore;
         _renderContainer.AddChild(_renderDraggedItem);
+        
+        _renderPlacementIndicator = new Array<ColorRect>();
         
         OnDragStart += () =>
         {
@@ -72,7 +77,23 @@ public partial class InventoryMouse : Node
             
             // Visualizing whether we can place the item.
             var canPlace = PlaceItem(InventoryPosition(_currentInventory.GetLocalMousePosition()), _currentInventory, true);
-            _renderDraggedItem.Modulate = canPlace ? _positiveActionColor :  _negativeActionColor;
+            var placementColor = canPlace ? _positiveActionColor :  _negativeActionColor;
+            // _renderDraggedItem.Modulate = placementColor;
+
+            var mousePos = _currentInventory.GetLocalMousePosition();
+            for (int i = 0; i < _draggedItem.itemData.Cells.Count; i++)
+            {
+                var newPos = new Vector2(
+                    Mathf.Floor(mousePos.X + (_draggedItem.itemData.Cells[i].X * (_currentInventory.inventoryParameters.cellSize + _currentInventory.inventoryParameters.cellGapSize))),
+                    Mathf.Floor(mousePos.Y + (_draggedItem.itemData.Cells[i].Y * (_currentInventory.inventoryParameters.cellSize + _currentInventory.inventoryParameters.cellGapSize)))
+                );
+                newPos = InventoryPosition(newPos);
+                newPos = _currentInventory.GlobalPosition + newPos * (
+                             _currentInventory.inventoryParameters.cellSize +
+                             _currentInventory.inventoryParameters.cellGapSize);
+                _renderPlacementIndicator[i].Position = newPos;
+                _renderPlacementIndicator[i].Color = placementColor;
+            }
         }
     }
 
@@ -111,6 +132,16 @@ public partial class InventoryMouse : Node
 
         _renderDraggedItem.Texture = _draggedItem.itemData.Texture;
         _renderDraggedItem.SetRotation(_draggedItem.Rotation);
+
+        for (int i = 0; i < _draggedItem.itemData.Cells.Count; i++)
+        {
+            var rect = new ColorRect();
+            rect.CustomMinimumSize = new Vector2(
+                _currentInventory.inventoryParameters.cellSize,
+                _currentInventory.inventoryParameters.cellSize);
+            _renderPlacementIndicator.Add(rect);
+            _renderContainer.AddChild(rect);
+        }
     }
 
     private bool PlaceItem(Vector2 pos, Inventory inventory, bool preview = false)
@@ -131,6 +162,12 @@ public partial class InventoryMouse : Node
             _draggedItem = null;
             _renderDraggedItem.Texture = null;
             _renderDraggedItem.SetRotation(0);
+            foreach (var rect in _renderPlacementIndicator)
+            {
+                _renderContainer.RemoveChild(rect);
+            }
+
+            _renderPlacementIndicator.Resize(0);
         }
         else
         {
