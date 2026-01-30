@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://bftbkqgxvubyf"]
+[gd_scene format=3 uid="uid://bftbkqgxvubyf"]
 
 [ext_resource type="PackedScene" uid="uid://de13a8pse1wke" path="res://scenes/inventory.tscn" id="1_nt7q6"]
 [ext_resource type="Script" uid="uid://0q3ki3i2tc7f" path="res://scripts/InventoryMouse.cs" id="1_p7vwb"]
@@ -7,8 +7,9 @@
 [ext_resource type="Resource" uid="uid://b1k3ck5t8d1tu" path="res://resources/ItemLShape.tres" id="5_8dubc"]
 [ext_resource type="Texture2D" uid="uid://d1674g0fekp8i" path="res://assets/stripy-L.svg" id="6_8dubc"]
 [ext_resource type="Resource" uid="uid://dea4rl2r3g7ql" path="res://resources/ItemSquare.tres" id="6_p7vwb"]
+[ext_resource type="Texture2D" uid="uid://cxxsnlfu4yb02" path="res://assets/star-32.svg" id="8_ktti3"]
 
-[node name="UI" type="Control"]
+[node name="UI" type="Control" unique_id=1014554504]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -18,13 +19,13 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_wm3ai")
 
-[node name="InventoryMouse" type="Node" parent="."]
+[node name="InventoryMouse" type="Node" parent="." unique_id=1796291596]
 script = ExtResource("1_p7vwb")
 _positiveActionColor = Color(0, 1, 0, 1)
 _negativeActionColor = Color(1, 0, 0, 1)
 metadata/_custom_type_script = "uid://0q3ki3i2tc7f"
 
-[node name="Inventory" parent="." node_paths=PackedStringArray("_startingItems") instance=ExtResource("1_nt7q6")]
+[node name="Inventory" parent="." unique_id=1100610950 node_paths=PackedStringArray("_startingItems") instance=ExtResource("1_nt7q6")]
 layout_mode = 1
 offset_left = 120.0
 offset_top = -172.0
@@ -32,20 +33,20 @@ offset_right = 440.0
 offset_bottom = 148.0
 _startingItems = [NodePath("InventoryItem5"), NodePath("InventoryItem6")]
 
-[node name="InventoryItem5" type="Node" parent="Inventory"]
+[node name="InventoryItem5" type="Node" parent="Inventory" unique_id=1429448563]
 script = ExtResource("2_8dubc")
 itemId = 4
 itemData = ExtResource("5_8dubc")
 metadata/_custom_type_script = "uid://dcyvo6v8e16pa"
 
-[node name="InventoryItem6" type="Node" parent="Inventory"]
+[node name="InventoryItem6" type="Node" parent="Inventory" unique_id=199757317]
 script = ExtResource("2_8dubc")
 itemId = 34
 inventoryPosition = Vector2(4, 6)
 itemData = ExtResource("6_p7vwb")
 metadata/_custom_type_script = "uid://dcyvo6v8e16pa"
 
-[node name="Inventory2" parent="." node_paths=PackedStringArray("_startingItems") instance=ExtResource("1_nt7q6")]
+[node name="Inventory2" parent="." unique_id=1311539495 node_paths=PackedStringArray("_startingItems") instance=ExtResource("1_nt7q6")]
 layout_mode = 1
 offset_left = -493.0
 offset_top = -195.0
@@ -53,15 +54,22 @@ offset_right = -173.0
 offset_bottom = 125.0
 _startingItems = [NodePath("InventoryItem5")]
 
-[node name="InventoryItem5" type="Node" parent="Inventory2"]
+[node name="InventoryItem5" type="Node" parent="Inventory2" unique_id=1560669281]
 script = ExtResource("2_8dubc")
 itemId = 5
 itemData = ExtResource("5_8dubc")
 metadata/_custom_type_script = "uid://dcyvo6v8e16pa"
 
-[node name="TextureRect" type="TextureRect" parent="."]
+[node name="TextureRect" type="TextureRect" parent="." unique_id=198437487]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 pivot_offset = Vector2(32, 32)
 texture = ExtResource("6_8dubc")
+
+[node name="TextureRect2" type="TextureRect" parent="." unique_id=16183545]
+layout_mode = 0
+offset_left = 72.0
+offset_right = 104.0
+offset_bottom = 32.0
+texture = ExtResource("8_ktti3")

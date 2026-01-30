@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cx3d0xtkxsbfa"
-path="res://.godot/imported/raw_sapphire_block.png-267a9208352cc8daf48bf77dfed2aca5.ctex"
+uid="uid://cxxsnlfu4yb02"
+path="res://.godot/imported/star-32.svg-30c93f3d9ede77a54173db9ce00b7ce2.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/raw_sapphire_block.png"
-dest_files=["res://.godot/imported/raw_sapphire_block.png-267a9208352cc8daf48bf77dfed2aca5.ctex"]
+source_file="res://assets/star-32.svg"
+dest_files=["res://.godot/imported/star-32.svg-30c93f3d9ede77a54173db9ce00b7ce2.ctex"]
 
 [params]
 
@@ -38,3 +38,6 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
+svg/scale=1.0
+editor/scale_with_editor_scale=false
+editor/convert_colors_with_editor_theme=false
